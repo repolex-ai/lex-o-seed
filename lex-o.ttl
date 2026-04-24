@@ -1,0 +1,216 @@
+@prefix lex-o: <https://repolex.ai/ontology/lex-o/> .
+@prefix lex:   <https://repolex.ai/ontology/git-lex/lex/> .
+@prefix owl:   <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs:  <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd:   <http://www.w3.org/2001/XMLSchema#> .
+@prefix prov:  <http://www.w3.org/ns/prov#> .
+@prefix foaf:  <http://xmlns.com/foaf/0.1/> .
+@prefix skos:  <http://www.w3.org/2004/02/skos/core#> .
+@prefix schema: <https://schema.org/> .
+
+# =============================================================================
+# LEX-O SEED ONTOLOGY (v0.1)
+# =============================================================================
+# The shared genesis for per-repo open-world extensions. Mid-tier classes that
+# live between the universal upper ontology (lex:Thing, lex:Physical, etc.)
+# and domain-specific vocabulary that individual agents grow on their branches.
+#
+# Design principles:
+#   - Reuse established vocabularies where they fit (PROV-O, FOAF, SKOS)
+#   - Declare owl:equivalentClass rather than rdfs:subClassOf for standard
+#     classes — agents using PROV-O natively get bridging for free
+#   - Keep the seed small — agents add subclasses on their own branches
+#   - Every class and property has rdfs:label + rdfs:comment so agents
+#     pulling an unfamiliar lex-o can self-document via SPARQL
+#   - No rdfs:domain on properties — shared properties apply to anything
+#
+# Namespace: lex-o: = https://repolex.ai/ontology/lex-o/
+#
+# Oxigraph note: Oxigraph does not perform RDFS entailment automatically.
+# To query across the subclass hierarchy use property paths:
+#   SELECT ?x WHERE { ?x a/rdfs:subClassOf* lex-o:Agent }
+# =============================================================================
+
+<https://repolex.ai/ontology/lex-o> a owl:Ontology ;
+    rdfs:label "lex-o Seed Ontology" ;
+    rdfs:comment "Shared genesis ontology for per-repo open-world extensions. Agents fork main, grow subclasses on their own branches, bridge via git merge-base." ;
+    owl:versionInfo "0.1" ;
+    owl:imports <https://repolex.ai/ontology/git-lex/lex> .
+
+
+# =============================================================================
+# PHYSICAL BRANCH — things that exist in space/time
+# =============================================================================
+# lex:Physical > Agent, Person, Organization, SoftwareAgent, Location,
+#                Artifact, Phenomenon
+
+lex-o:Agent a owl:Class ;
+    rdfs:subClassOf lex:Physical ;
+    owl:equivalentClass prov:Agent, foaf:Agent ;
+    rdfs:label "Agent" ;
+    rdfs:comment "An entity capable of acting: a person, organization, or software agent. Equivalent to prov:Agent and foaf:Agent." .
+
+lex-o:Person a owl:Class ;
+    rdfs:subClassOf lex-o:Agent ;
+    owl:equivalentClass foaf:Person, schema:Person ;
+    rdfs:label "Person" ;
+    rdfs:comment "A human being. Equivalent to foaf:Person and schema:Person." .
+
+lex-o:Organization a owl:Class ;
+    rdfs:subClassOf lex-o:Agent ;
+    owl:equivalentClass foaf:Organization, schema:Organization ;
+    rdfs:label "Organization" ;
+    rdfs:comment "A group with collective agency: a company, team, institution, or project. Equivalent to foaf:Organization and schema:Organization." .
+
+lex-o:SoftwareAgent a owl:Class ;
+    rdfs:subClassOf lex-o:Agent ;
+    owl:equivalentClass prov:SoftwareAgent ;
+    rdfs:label "Software Agent" ;
+    rdfs:comment "A software system that acts autonomously: an LLM agent, a bot, a daemon. Equivalent to prov:SoftwareAgent." .
+
+lex-o:Location a owl:Class ;
+    rdfs:subClassOf lex:Physical ;
+    owl:equivalentClass schema:Place ;
+    rdfs:label "Location" ;
+    rdfs:comment "A place: a city, country, building, URL-as-place, or conceptual location. Equivalent to schema:Place." .
+
+lex-o:Artifact a owl:Class ;
+    rdfs:subClassOf lex:Physical ;
+    rdfs:label "Artifact" ;
+    rdfs:comment "A made thing: a tool, a dataset, a software library, a physical object. Distinguished from Information (which is a representation) and from Agent (which acts)." .
+
+lex-o:Phenomenon a owl:Class ;
+    rdfs:subClassOf lex:Physical ;
+    rdfs:label "Phenomenon" ;
+    rdfs:comment "An observable occurrence or pattern that is not an intentional action: weather, market behavior, emergent properties, disease outbreaks. Distinguished from Event (which has boundaries) and Process (which has agency)." .
+
+
+# =============================================================================
+# INFORMATION BRANCH — representations of knowledge
+# =============================================================================
+# lex:Information > Work, Claim, Record
+
+lex-o:Work a owl:Class ;
+    rdfs:subClassOf lex:Information ;
+    rdfs:label "Work" ;
+    rdfs:comment "A creative or intellectual product: a paper, book, article, specification, codebase, dataset. Distinguished from Document (which is a file in a repo) — a Work may be referenced without being stored locally." .
+
+lex-o:Claim a owl:Class ;
+    rdfs:subClassOf lex:Information ;
+    rdfs:label "Claim" ;
+    rdfs:comment "An assertion or proposition that can be evaluated: a hypothesis, finding, argument, or disputed fact. Distinguished from Decision (which records a choice) — a Claim records a belief." .
+
+lex-o:Record a owl:Class ;
+    rdfs:subClassOf lex:Information ;
+    rdfs:label "Record" ;
+    rdfs:comment "A structured observation or measurement: experimental data, a log entry, a metric reading, a survey response. Distinguished from Claim (which interprets) — a Record just captures." .
+
+
+# =============================================================================
+# CONCEPT BRANCH — ideas and abstractions
+# =============================================================================
+# lex:Concept > Method, Theory, Role
+
+lex-o:Method a owl:Class ;
+    rdfs:subClassOf lex:Concept ;
+    rdfs:subClassOf skos:Concept ;
+    rdfs:label "Method" ;
+    rdfs:comment "A repeatable technique, algorithm, or procedure: spectral analysis, SHACL validation, Delphi method. Subclass of both lex:Concept and skos:Concept for SKOS interop." .
+
+lex-o:Theory a owl:Class ;
+    rdfs:subClassOf lex:Concept ;
+    rdfs:subClassOf skos:Concept ;
+    rdfs:label "Theory" ;
+    rdfs:comment "An explanatory framework or model: general relativity, actor-network theory, the Semantic Web vision. Distinguished from Method (which is prescriptive) — a Theory is descriptive." .
+
+lex-o:Role a owl:Class ;
+    rdfs:subClassOf lex:Concept ;
+    rdfs:label "Role" ;
+    rdfs:comment "A function an agent plays in a context: author, reviewer, maintainer, advisor. Reified so the same agent can hold different roles in different contexts. Connected to agents via lex-o:holdsRole." .
+
+
+# =============================================================================
+# EVENT BRANCH — things that happen
+# =============================================================================
+# lex:Event > Activity, Milestone
+
+lex-o:Activity a owl:Class ;
+    rdfs:subClassOf lex:Event ;
+    owl:equivalentClass prov:Activity ;
+    rdfs:label "Activity" ;
+    rdfs:comment "A bounded action performed by an agent: a review session, an experiment run, a deployment. Equivalent to prov:Activity. Distinguished from Process (which is ongoing) — an Activity has a start and end." .
+
+lex-o:Milestone a owl:Class ;
+    rdfs:subClassOf lex:Event ;
+    rdfs:label "Milestone" ;
+    rdfs:comment "A significant marker in a timeline: a release, a deadline, a phase boundary. Distinguished from Activity (which has duration) — a Milestone is a point." .
+
+
+# =============================================================================
+# RELATIONSHIPS
+# =============================================================================
+# Mid-tier properties that compose with the upper ontology's generic
+# relationships (lex:relatedTo, lex:partOf, etc.). No rdfs:domain — these
+# are shared properties that apply wherever they make sense.
+# =============================================================================
+
+# --- Provenance ---
+
+lex-o:producedBy a owl:ObjectProperty ;
+    rdfs:subPropertyOf lex:relatedTo ;
+    rdfs:subPropertyOf prov:wasGeneratedBy ;
+    rdfs:label "produced by" ;
+    rdfs:comment "This entity was produced by an Activity. Aligns with prov:wasGeneratedBy." ;
+    rdfs:range lex-o:Activity .
+
+lex-o:wasAssociatedWith a owl:ObjectProperty ;
+    rdfs:subPropertyOf lex:relatedTo ;
+    owl:equivalentProperty prov:wasAssociatedWith ;
+    rdfs:label "was associated with" ;
+    rdfs:comment "An Activity was associated with an Agent. Equivalent to prov:wasAssociatedWith." ;
+    rdfs:range lex-o:Agent .
+
+# --- Role ---
+
+lex-o:holdsRole a owl:ObjectProperty ;
+    rdfs:subPropertyOf lex:relatedTo ;
+    rdfs:label "holds role" ;
+    rdfs:comment "An agent holds a role in some context. Use with lex-o:Role instances." ;
+    rdfs:range lex-o:Role .
+
+lex-o:realizes a owl:ObjectProperty ;
+    rdfs:subPropertyOf lex:relatedTo ;
+    rdfs:label "realizes" ;
+    rdfs:comment "A concrete entity realizes or instantiates an abstract concept: a codebase realizes a Theory, a deployment realizes a Method." .
+
+# --- Affiliation and attribution ---
+
+lex-o:affiliatedWith a owl:ObjectProperty ;
+    rdfs:subPropertyOf lex:relatedTo ;
+    rdfs:label "affiliated with" ;
+    rdfs:comment "An agent is affiliated with an organization, project, or group." ;
+    rdfs:range lex-o:Organization .
+
+lex-o:knownFor a owl:ObjectProperty ;
+    rdfs:subPropertyOf lex:relatedTo ;
+    rdfs:label "known for" ;
+    rdfs:comment "An agent or entity is notable for a particular Work, Theory, Method, or achievement." .
+
+# --- Spatial and topical ---
+
+lex-o:situatedIn a owl:ObjectProperty ;
+    rdfs:subPropertyOf lex:relatedTo ;
+    rdfs:label "situated in" ;
+    rdfs:comment "An entity is located in, based in, or operates from a Location." ;
+    rdfs:range lex-o:Location .
+
+lex-o:about a owl:ObjectProperty ;
+    rdfs:subPropertyOf lex:relatedTo ;
+    rdfs:label "about" ;
+    rdfs:comment "This entity is about or concerns another entity. General topical relationship." .
+
+lex-o:presentedAt a owl:ObjectProperty ;
+    rdfs:subPropertyOf lex:relatedTo ;
+    rdfs:label "presented at" ;
+    rdfs:comment "A Work or Claim was presented at an Event (conference, meeting, review)." ;
+    rdfs:range lex-o:Activity .
