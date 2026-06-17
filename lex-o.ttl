@@ -34,8 +34,50 @@
 <https://repolex.ai/ontology/lex-o> a owl:Ontology ;
     rdfs:label "lex-o Seed Ontology" ;
     rdfs:comment "Shared genesis ontology for per-repo open-world extensions. Agents fork main, grow subclasses on their own branches, bridge via git merge-base." ;
-    owl:versionInfo "0.1" ;
+    owl:versionInfo "0.2" ;
     owl:imports <https://repolex.ai/ontology/git-lex/lex> .
+
+
+# =============================================================================
+# CLASS-LEVEL ANNOTATIONS
+# =============================================================================
+# Annotations applied to owl:Class declarations in kit ontologies, read by
+# substrate tooling (git-lex, Pool, future consumers) to know how to treat
+# the class. The annotation names the WHY (what creates instances of this
+# class) rather than the CONSEQUENCE (whether a folder gets scaffolded),
+# so the vocabulary outlives implementation choices.
+# =============================================================================
+
+lex-o:instantiation a owl:AnnotationProperty ;
+    rdfs:label "instantiation" ;
+    rdfs:range xsd:string ;
+    rdfs:comment """How instances of this class come into being. Read by git-lex at kit-install / kit-update time to decide whether to scaffold a folder + template, and by future tooling (`git lex list`, doc generators) to distinguish what humans author from what runtimes emit.
+
+Conventional values (open vocabulary — kits MAY introduce new modes as needed):
+
+  \"authored\"   — humans write .md files. git-lex creates the
+                  /<base>/<class>/ folder and __<Class>.md template.
+                  This is the default when the annotation is absent;
+                  every existing kit-class behaves this way until
+                  explicitly opted out.
+
+  \"graph-only\" — pipelines, runtimes, or external tooling emit
+                  triples for instances of this class directly to
+                  the graph; no human .md authoring. git-lex does
+                  NOT scaffold a folder. Examples: a generative-
+                  pipeline output class (CoPIA Moment), a substrate-
+                  storage class (Pool Blob/Image/Document).
+
+  \"abstract\"   — the class exists for the type hierarchy
+                  (rdfs:subClassOf parents, SPARQL unions) but is
+                  never instantiated directly; only its subclasses
+                  carry instances. git-lex does NOT scaffold a
+                  folder. Examples: a union parent (Depictable),
+                  an empty grouping (Group).
+
+Default when absent: \"authored\". This preserves backward-compat
+for every kit that exists today; only new opt-in declarations change
+behavior.""" .
 
 
 # =============================================================================
