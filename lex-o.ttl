@@ -34,7 +34,7 @@
 <https://repolex.ai/ontology/lex-o> a owl:Ontology ;
     rdfs:label "lex-o Seed Ontology" ;
     rdfs:comment "Shared genesis ontology for per-repo open-world extensions. Agents fork main, grow subclasses on their own branches, bridge via git merge-base." ;
-    owl:versionInfo "0.2" ;
+    owl:versionInfo "0.3" ;
     owl:imports <https://repolex.ai/ontology/git-lex/lex> .
 
 
@@ -78,6 +78,17 @@ Conventional values (open vocabulary — kits MAY introduce new modes as needed)
 Default when absent: \"authored\". This preserves backward-compat
 for every kit that exists today; only new opt-in declarations change
 behavior.""" .
+
+lex-o:okfType a owl:AnnotationProperty ;
+    rdfs:label "okfType" ;
+    rdfs:range xsd:string ;
+    rdfs:comment """Free-form type label emitted as the OKF `type:` field in saved .md frontmatter. Per Open Knowledge Format spec v0.1 (Google Cloud Platform), the `type:` field is the only REQUIRED frontmatter field for OKF compliance.
+
+Conventional value: the OWL class label (e.g. \"Memory\", \"Place\", \"Image\"). Reads naturally to OKF-only consumers; recoverable to full IRI via kit lookup. Open vocabulary — kits MAY use any string. If cross-kit disambiguation is needed (e.g. two kits both declare a \"Memory\" class), the kit author owns that choice via this annotation.
+
+Default when absent: the class's rdfs:label, or if rdfs:label is also absent, the local-name of the class IRI. Emitting `type:` is unconditional — every `git lex create` output gets one — so the default-when-absent path matters and must always produce a string.
+
+The annotation lives in lex-o (not in a separate kit-okf) — kits opt in per-class. Kits that haven't annotated yet still emit valid `type:` values from their existing rdfs:label, so on-ramp is frictionless.""" .
 
 
 # =============================================================================
